@@ -57,15 +57,13 @@ class TibeSwapService {
     var body = BodyCreateOfferEndpointOfferPairIdPost(
       offer: offer,
       action: action,
-      donationAddresses: [
-        tibetSwapAddress,
-        walletDevAddress,
-      ],
-      donationWeights: [
-        tibetDevWeigth,
-        walletDevWeigth,
-      ],
-      totalDonationAmount: devAmount,
+      donationAddresses: devAmount > 0
+          ? [tibetSwapAddress, walletDevAddress]
+          : [],
+      donationWeights: devAmount > 0
+          ? [tibetDevWeigth, walletDevWeigth]
+          : [],
+      totalDonationAmount: devAmount.toInt().toDouble(),
     );
 
     final result = await _tibetSwapApiV2.offerPairIdPost(
