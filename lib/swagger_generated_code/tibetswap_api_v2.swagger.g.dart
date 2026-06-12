@@ -78,7 +78,7 @@ Map<String, dynamic> _$OfferResponseToJson(OfferResponse instance) =>
     };
 
 Pair _$PairFromJson(Map<String, dynamic> json) => Pair(
-      launcherId: json['launcher_id'] as String? ?? '',
+      launcherId: json['launcher_id'] as String? ?? json['pair_id'] as String? ?? '',
       assetId: json['asset_id'] as String? ?? '',
       liquidityAssetId: json['liquidity_asset_id'] as String? ?? '',
       xchReserve: json['xch_reserve'] as int,

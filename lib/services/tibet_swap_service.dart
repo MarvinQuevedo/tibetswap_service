@@ -54,15 +54,17 @@ class TibeSwapService {
     ActionType action,
     double devAmount,
   ) async {
+    // TibetSwap's API rejects the offer (400 "please provide at least 50%
+    // of fees to our address") unless its address gets >= 50% of the
+    // donation weights. The configurable weights came from the retired
+    // ozone_api server, so they are no longer honored — fixed 50/50 split.
     var body = BodyCreateOfferEndpointOfferPairIdPost(
       offer: offer,
       action: action,
       donationAddresses: devAmount > 0
           ? [tibetSwapAddress, walletDevAddress]
           : [],
-      donationWeights: devAmount > 0
-          ? [tibetDevWeigth, walletDevWeigth]
-          : [],
+      donationWeights: devAmount > 0 ? [1, 1] : [],
       totalDonationAmount: devAmount.toInt().toDouble(),
     );
 
@@ -70,11 +72,23 @@ class TibeSwapService {
       pairId: launcherId,
       body: body,
     );
+    if (result.body == null) {
+      // Surface the API's actual rejection — a null body alone is
+      // undiagnosable (chopper leaves non-2xx payloads in `error`).
+      // ignore: avoid_print
+      print('[TIBET] offer POST ${result.base.statusCode} '
+          'error=${result.error} url=${result.base.request?.url}');
+    }
     return result.body;
   }
 
   Future<List<Token>> getAllTokens() async {
     final result = await _tibetSwapApiV2.tokensGet();
+    return result.body ?? [];
+  }
+
+  Future<List<Pair>> getAllPairs() async {
+    final result = await _tibetSwapApiV2.pairsGet(limit: 1000);
     return result.body ?? [];
   }
 
